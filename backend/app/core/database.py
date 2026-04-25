@@ -30,3 +30,4 @@ async def create_tables():
         await conn.execute(text("ALTER TABLE cases ADD COLUMN IF NOT EXISTS attorney_brief TEXT"))
         await conn.execute(text("ALTER TABLE findings ADD COLUMN IF NOT EXISTS source_type VARCHAR(30) DEFAULT 'DOCUMENT_EVIDENCE'"))
         await conn.execute(text("ALTER TABLE findings ADD COLUMN IF NOT EXISTS verification_status VARCHAR(30) DEFAULT 'document_supported'"))
+        await conn.execute(text("ALTER TABLE findings ADD COLUMN IF NOT EXISTS peer_benchmark TEXT"))

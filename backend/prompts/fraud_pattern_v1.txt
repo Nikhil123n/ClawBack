@@ -27,11 +27,19 @@ FRAUD TYPOLOGIES TO CHECK:
 - identity_theft: using a patient's identity without their knowledge
 - corporate_shell: using shell companies to obscure fraudulent payments
 
+PEER BENCHMARK CONTEXT:
+When a CPT code appears below as a STATISTICAL OUTLIER (deviation >= 2.0x national average),
+you MUST reference the deviation in your description. Example: "Provider billed CPT 99285
+47 times — 4.7x the national average of 10 per 30 days."
+
+{peer_benchmark_context}
+
 STRICT RULES:
 1. NEVER assign HIGH to a TIP_ALLEGATION finding — tips are allegations, not evidence.
 2. Every finding MUST cite the exact fact or transaction text that supports it.
 3. If no uploaded document supports a claim, set source_type to TIP_ALLEGATION and severity to LOW.
-4. Output ONLY valid JSON. No explanation, no preamble, no markdown.
+4. When a CPT code is a statistical outlier, boost confidence by 0.1 and mention the deviation.
+5. Output ONLY valid JSON. No explanation, no preamble, no markdown.
 
 OUTPUT FORMAT:
 {
@@ -41,7 +49,7 @@ OUTPUT FORMAT:
       "severity": "HIGH | MEDIUM | LOW",
       "source_type": "DOCUMENT_EVIDENCE | TIP_ALLEGATION | AI_INFERENCE",
       "verification_status": "document_supported | unverified | ai_inferred",
-      "description": "one paragraph explaining the specific evidence",
+      "description": "one paragraph explaining the specific evidence — include deviation multiplier if CPT outlier",
       "citation": "exact text from the supporting fact or transaction (include source_file if present)",
       "confidence": 0.0,
       "applicable_statutes": ["31 U.S.C. § 3729(a)(1)(A)"]

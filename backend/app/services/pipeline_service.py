@@ -69,6 +69,7 @@ async def run_pipeline(db: AsyncSession, case: Case) -> Case:
             applicable_statutes=json.dumps(f.get("applicable_statutes", [])),
             source_type=f.get("source_type", "DOCUMENT_EVIDENCE"),
             verification_status=f.get("verification_status", "document_supported"),
+            peer_benchmark=json.dumps(f["peer_benchmark"]) if f.get("peer_benchmark") else None,
             model_version=f.get("model_version") or pipeline_result.findings[0].get("model_version"),
             prompt_version=f.get("prompt_version"),
         )

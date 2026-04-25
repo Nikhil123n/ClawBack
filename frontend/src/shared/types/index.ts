@@ -31,6 +31,7 @@ export interface Finding {
   citation: string;
   confidence: number;
   applicable_statutes: string | null;
+  peer_benchmark: string | null;
   attorney_brief: string | null;
   model_version: string | null;
   prompt_version: string | null;

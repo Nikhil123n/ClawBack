@@ -14,7 +14,21 @@ const FRAUD_LABELS: Record<string, string> = {
   corporate_shell:     "Corporate Shell",
 };
 
-export function FindingCard({ finding, index }: { finding: Finding; index: number }) {
+function verificationLabel(status: Finding["verification_status"]) {
+  if (status === "document_supported") return "Supported by uploaded document";
+  if (status === "ai_inferred") return "Inferred from document context; attorney review needed";
+  return "Unverified allegation";
+}
+
+export function FindingCard({
+  finding,
+  index,
+  evidenceSource,
+}: {
+  finding: Finding;
+  index: number;
+  evidenceSource: string;
+}) {
   const [expanded, setExpanded] = useState(false);
   const statutes = finding.applicable_statutes
     ? JSON.parse(finding.applicable_statutes)
@@ -22,12 +36,13 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
 
   const confidencePct = Math.round(finding.confidence * 100);
   const barColor =
-    finding.severity === "HIGH"   ? "#ef4444" :
-    finding.severity === "MEDIUM" ? "#edb200" : "#64748b";
+    finding.severity === "HIGH"   ? "#dc2626" :
+    finding.severity === "MEDIUM" ? "#d97706" : "#64748b";
+  const fraudLabel = FRAUD_LABELS[finding.fraud_type] ?? finding.fraud_type.replace(/_/g, " ");
 
   return (
     <div
-      className="glass rounded-2xl overflow-hidden transition-all duration-200 hover:border-white/12"
+      className="glass rounded-lg overflow-hidden transition-all duration-200 hover:border-blue-200"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       <div className="p-5">
@@ -43,46 +58,71 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
         </div>
 
         {/* Confidence bar */}
-        <div className="w-full bg-white/5 rounded-full h-1 mb-4">
+        <div className="w-full bg-slate-100 rounded-full h-1.5 mb-4">
           <div
             className="h-1 rounded-full transition-all duration-700"
             style={{ width: `${confidencePct}%`, backgroundColor: barColor }}
           />
         </div>
 
-        <h3 className="font-semibold text-white text-sm mb-1">
-          {FRAUD_LABELS[finding.fraud_type] ?? finding.fraud_type.replace(/_/g, " ")}
-        </h3>
-        <p className="text-sm text-slate-400 leading-relaxed line-clamp-2">
-          {finding.description}
-        </p>
+        <div className="space-y-2 text-sm">
+          <p>
+            <span className="font-medium text-slate-500">Fraud Type: </span>
+            <span className="font-semibold text-slate-950">{fraudLabel}</span>
+          </p>
+          <p>
+            <span className="font-medium text-slate-500">Severity: </span>
+            <span className="font-semibold text-slate-950">{finding.severity}</span>
+          </p>
+          <p className="leading-relaxed">
+            <span className="font-medium text-slate-500">Why flagged: </span>
+            <span className="text-slate-700">{finding.description}</span>
+          </p>
+          <p>
+            <span className="font-medium text-slate-500">Evidence source: </span>
+            <span className="text-slate-700">{evidenceSource}</span>
+          </p>
+          <p className="leading-relaxed">
+            <span className="font-medium text-slate-500">Citation: </span>
+            <span className="text-slate-700 italic">"{finding.citation}"</span>
+          </p>
+          <p>
+            <span className="font-medium text-slate-500">Verification: </span>
+            <span className={`font-medium ${
+              finding.verification_status === "document_supported" ? "text-emerald-700" :
+              finding.verification_status === "ai_inferred"        ? "text-blue-700" : "text-amber-700"
+            }`}>
+              {verificationLabel(finding.verification_status)}
+            </span>
+          </p>
+        </div>
 
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 mt-3 transition-colors"
+          className="flex items-center gap-1.5 text-xs text-blue-700 hover:text-blue-900 mt-3 transition-colors"
         >
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          {expanded ? "Hide details" : "Show citation & statutes"}
+          {expanded ? "Hide details" : "Show statutes & provenance"}
         </button>
       </div>
 
       {expanded && (
-        <div className="border-t border-white/5 px-5 pb-5 pt-4 space-y-4">
+        <div className="border-t border-slate-200 px-5 pb-5 pt-4 space-y-4">
           {/* Citation */}
-          <div className="bg-white/3 rounded-xl p-4 border-l-2 border-blue-500/40">
+          <div className="bg-blue-50 rounded-lg p-4 border-l-2 border-blue-300">
             <div className="flex items-center gap-1.5 mb-2">
-              <Quote size={12} className="text-blue-400" />
-              <span className="text-xs font-medium text-blue-400 uppercase tracking-wide">Source Citation</span>
+              <Quote size={12} className="text-blue-700" />
+              <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Source Citation</span>
             </div>
-            <p className="text-sm text-slate-300 italic leading-relaxed">"{finding.citation}"</p>
+            <p className="text-sm text-slate-700 italic leading-relaxed">"{finding.citation}"</p>
           </div>
 
           {/* Verification */}
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-500">Verification:</span>
             <span className={`text-xs font-medium ${
-              finding.verification_status === "document_supported" ? "text-emerald-400" :
-              finding.verification_status === "ai_inferred"        ? "text-blue-400" : "text-amber-400"
+              finding.verification_status === "document_supported" ? "text-emerald-700" :
+              finding.verification_status === "ai_inferred"        ? "text-blue-700" : "text-amber-700"
             }`}>
               {finding.verification_status.replace(/_/g, " ")}
             </span>
@@ -94,7 +134,7 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
               <p className="text-xs text-slate-500 mb-2 uppercase tracking-wide font-medium">Applicable Statutes</p>
               <div className="flex flex-wrap gap-2">
                 {statutes.map((s: string, i: number) => (
-                  <span key={i} className="text-xs bg-white/5 border border-white/8 rounded-lg px-2.5 py-1 text-slate-300 font-mono">
+                  <span key={i} className="text-xs bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1 text-slate-700 font-mono">
                     {s}
                   </span>
                 ))}
@@ -104,7 +144,7 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
 
           {/* Provenance */}
           {finding.model_version && (
-            <p className="text-xs text-slate-600 font-mono">
+            <p className="text-xs text-slate-500 font-mono">
               model: {finding.model_version} · prompt: {finding.prompt_version}
             </p>
           )}

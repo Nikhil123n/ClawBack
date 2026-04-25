@@ -17,6 +17,7 @@ class FindingOut(BaseModel):
     applicable_statutes: Optional[str]
     source_type: str
     verification_status: str
+    peer_benchmark: Optional[str] = None
     attorney_brief: Optional[str]
     model_version: Optional[str]
     prompt_version: Optional[str]

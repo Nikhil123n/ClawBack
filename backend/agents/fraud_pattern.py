@@ -3,6 +3,7 @@ import logging
 from typing import List
 
 from agents.base_agent import BaseAgent
+from agents.cpt_benchmarks import build_benchmark_context, extract_cpt_counts
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +32,18 @@ class FraudPatternAgent(BaseAgent):
             all_facts.extend(doc.get("key_facts", []))
             all_transactions.extend(doc.get("transactions", []))
 
+        # Build peer benchmark context from CPT codes found in transactions
+        cpt_counts = extract_cpt_counts(all_transactions)
+        benchmark_context, deviation_map = build_benchmark_context(cpt_counts)
+
         extracted_facts = json.dumps({
             "key_facts": all_facts,
             "transactions": all_transactions,
         }, indent=2)
 
         prompt = self.prompt_template.replace("{extracted_facts}", extracted_facts)
+        prompt = prompt.replace("{peer_benchmark_context}", benchmark_context or "No CPT codes detected in transactions.")
+
         raw = self._call_llm(prompt)
         result = self._parse_json(raw)
 
@@ -61,6 +68,24 @@ class FraudPatternAgent(BaseAgent):
         for f in findings:
             f.setdefault("source_type", "DOCUMENT_EVIDENCE")
             f.setdefault("verification_status", "document_supported")
+
+        # Attach peer benchmark data to findings whose citation mentions a known CPT code
+        if deviation_map:
+            import re
+            _cpt_re = re.compile(r'\b(\d{5})\b')
+            for f in findings:
+                citation_text = f.get("citation", "") + " " + f.get("description", "")
+                for match in _cpt_re.finditer(citation_text):
+                    code = match.group(1)
+                    if code in deviation_map:
+                        f["peer_benchmark"] = deviation_map[code]
+                        break
+            # Also attach to any duplicate_billing finding if any outlier CPT exists
+            outliers = {c: d for c, d in deviation_map.items() if (d.get("deviation_multiplier") or 0) >= 2.0}
+            for f in findings:
+                if f.get("fraud_type") == "duplicate_billing" and "peer_benchmark" not in f and outliers:
+                    top = max(outliers.values(), key=lambda x: x.get("deviation_multiplier", 0))
+                    f["peer_benchmark"] = top
 
         # Sort by severity then confidence
         findings.sort(

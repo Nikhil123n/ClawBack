@@ -8,13 +8,13 @@ import type { Case } from "../../shared/types";
 
 function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color: string }) {
   return (
-    <div className="glass rounded-2xl p-5 flex items-center gap-4">
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${color}`}>
+    <div className="glass rounded-lg p-5 flex items-center gap-4">
+      <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${color}`}>
         <Icon size={20} />
       </div>
       <div>
-        <p className="text-2xl font-bold text-white">{value}</p>
-        <p className="text-xs text-slate-400 mt-0.5">{label}</p>
+        <p className="text-2xl font-bold text-slate-950">{value}</p>
+        <p className="text-xs text-slate-500 mt-0.5">{label}</p>
       </div>
     </div>
   );
@@ -37,16 +37,16 @@ export default function CasesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080b11]">
+    <div className="page-shell">
       {/* Header */}
-      <header className="border-b border-white/5 px-8 py-5">
+      <header className="page-header px-8 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3080ff] to-[#00d294] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-blue-700 flex items-center justify-center">
               <Shield size={18} className="text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white tracking-tight">CaseFile AI</h1>
+              <h1 className="text-lg font-bold text-slate-950 tracking-tight">CaseFile AI</h1>
               <p className="text-xs text-slate-500">Fraud Intelligence Platform</p>
             </div>
           </div>
@@ -62,29 +62,29 @@ export default function CasesPage() {
           <h2 className="text-4xl font-bold tracking-tight">
             <span className="gradient-text">Active Investigations</span>
           </h2>
-          <p className="text-slate-400 mt-2 text-sm">
+          <p className="text-slate-600 mt-2 text-sm">
             AI-powered FCA fraud intelligence. Every finding is citation-grounded.
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-10">
-          <StatCard icon={Shield}       label="Total Cases"    value={stats.total}      color="bg-blue-500/10 text-blue-400" />
-          <StatCard icon={Clock}        label="Processing"     value={stats.processing} color="bg-purple-500/10 text-purple-400" />
-          <StatCard icon={AlertTriangle} label="Pending Review" value={stats.pending}    color="bg-amber-500/10 text-amber-400" />
-          <StatCard icon={CheckCircle}  label="Approved"       value={stats.approved}   color="bg-emerald-500/10 text-emerald-400" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <StatCard icon={Shield}       label="Total Cases"    value={stats.total}      color="bg-blue-50 text-blue-700 border border-blue-100" />
+          <StatCard icon={Clock}        label="Processing"     value={stats.processing} color="bg-indigo-50 text-indigo-700 border border-indigo-100" />
+          <StatCard icon={AlertTriangle} label="Pending Review" value={stats.pending}    color="bg-amber-50 text-amber-700 border border-amber-100" />
+          <StatCard icon={CheckCircle}  label="Approved"       value={stats.approved}   color="bg-emerald-50 text-emerald-700 border border-emerald-100" />
         </div>
 
         {/* Cases grid */}
         {loading ? (
           <div className="flex justify-center py-24"><Spinner size={32} /></div>
         ) : cases.length === 0 ? (
-          <div className="glass rounded-3xl p-16 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-4">
-              <Shield size={28} className="text-blue-400" />
+          <div className="glass rounded-lg p-12 text-center">
+            <div className="w-16 h-16 rounded-lg bg-blue-50 flex items-center justify-center mx-auto mb-4 border border-blue-100">
+              <Shield size={28} className="text-blue-700" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">No cases yet</h3>
-            <p className="text-slate-400 text-sm mb-6">Create your first fraud investigation case to get started.</p>
+            <h3 className="text-xl font-semibold text-slate-950 mb-2">No cases yet</h3>
+            <p className="text-slate-600 text-sm mb-6">Create your first fraud investigation case to get started.</p>
             <button onClick={() => navigate("/cases/new")} className="btn-primary">
               Create First Case
             </button>
@@ -95,22 +95,22 @@ export default function CasesPage() {
               <button
                 key={c.id}
                 onClick={() => navigate(`/cases/${c.id}`)}
-                className="glass rounded-2xl p-6 text-left hover:border-white/15 hover:-translate-y-1 transition-all duration-200 group"
+                className="glass rounded-lg p-6 text-left hover:border-blue-200 hover:-translate-y-1 transition-all duration-200 group"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 <div className="flex items-start justify-between mb-4">
                   <StatusBadge status={c.status} />
                   {c.confidence_floor_met && (
-                    <span className="text-xs text-emerald-400 font-medium">Evidence confirmed</span>
+                    <span className="text-xs text-emerald-700 font-medium">Evidence confirmed</span>
                   )}
                 </div>
-                <h3 className="font-semibold text-white text-sm leading-snug mb-2 group-hover:text-blue-300 transition-colors">
+                <h3 className="font-semibold text-slate-950 text-sm leading-snug mb-2 group-hover:text-blue-700 transition-colors">
                   {c.title}
                 </h3>
                 {c.tip_text && (
-                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{c.tip_text}</p>
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{c.tip_text}</p>
                 )}
-                <p className="text-xs text-slate-600 mt-4">
+                <p className="text-xs text-slate-500 mt-4">
                   {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </p>
               </button>

@@ -1,12 +1,12 @@
 interface BadgeProps { label: string; variant: "high" | "medium" | "low" | "blue" | "emerald" | "slate" }
 
 const styles = {
-  high:    "bg-red-500/15 text-red-400 border border-red-500/30",
-  medium:  "bg-amber-500/15 text-amber-400 border border-amber-500/30",
-  low:     "bg-slate-500/15 text-slate-400 border border-slate-500/30",
-  blue:    "bg-blue-500/15 text-blue-400 border border-blue-500/30",
-  emerald: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
-  slate:   "bg-slate-700/40 text-slate-400 border border-slate-600/30",
+  high:    "bg-red-50 text-red-700 border border-red-200",
+  medium:  "bg-amber-50 text-amber-700 border border-amber-200",
+  low:     "bg-slate-100 text-slate-600 border border-slate-200",
+  blue:    "bg-blue-50 text-blue-700 border border-blue-200",
+  emerald: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  slate:   "bg-slate-100 text-slate-700 border border-slate-200",
 };
 
 export function Badge({ label, variant }: BadgeProps) {

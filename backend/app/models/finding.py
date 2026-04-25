@@ -30,6 +30,9 @@ class Finding(Base):
         String(30), default="unverified"
     )  # document_supported | unverified | public_data_supported
 
+    # CMS peer benchmark — JSON: {cpt_code, provider_count, national_avg, deviation_multiplier}
+    peer_benchmark: Mapped[Optional[str]] = mapped_column(Text)
+
     # Narrative output (set by narrative_generator agent)
     attorney_brief: Mapped[Optional[str]] = mapped_column(Text)
 
