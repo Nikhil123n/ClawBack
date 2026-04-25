@@ -97,3 +97,17 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Print stylesheet — complaint viewer */
+@media print {
+  body { background: white !important; color: #0f172a !important; }
+  .no-print { display: none !important; }
+  header, nav { display: none !important; }
+  #complaint-document {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  @page { margin: 2cm; size: Letter; }
+}

@@ -55,7 +55,7 @@ def extract_cpt_counts(transactions: List[dict]) -> Dict[str, int]:
 def build_benchmark_context(cpt_counts: Dict[str, int]) -> Tuple[str, Dict[str, dict]]:
     """
     Returns (prompt_context_string, deviation_map).
-    deviation_map: cpt_code -> {cpt_code, description, provider_count, national_avg, deviation_multiplier}
+    deviation_map: cpt_code → {cpt_code, description, provider_count, national_avg, deviation_multiplier}
     """
     if not cpt_counts:
         return "", {}
@@ -78,7 +78,7 @@ def build_benchmark_context(cpt_counts: Dict[str, int]) -> Tuple[str, Dict[str, 
             "national_avg": avg,
             "deviation_multiplier": deviation,
         }
-        flag = "  <- STATISTICAL OUTLIER" if deviation and deviation >= 2.0 else ""
+        flag = "  ← STATISTICAL OUTLIER" if deviation and deviation >= 2.0 else ""
         lines.append(
             f"{code:>6}  {bench['description']:<42}  {count:>10}  {avg:>9}  {f'{deviation}x':>10}{flag}"
         )

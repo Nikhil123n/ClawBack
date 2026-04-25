@@ -1,7 +1,15 @@
-import { ChevronDown, ChevronUp, Quote } from "lucide-react";
+import { ChevronDown, ChevronUp, Quote, BarChart2 } from "lucide-react";
 import { useState } from "react";
 import { SeverityBadge, SourceBadge } from "../../shared/components/Badge";
 import type { Finding } from "../../shared/types";
+
+interface PeerBenchmark {
+  cpt_code: string;
+  description: string;
+  provider_count: number;
+  national_avg: number;
+  deviation_multiplier: number;
+}
 
 const FRAUD_LABELS: Record<string, string> = {
   phantom_billing:     "Phantom Billing",
@@ -108,6 +116,49 @@ export function FindingCard({
 
       {expanded && (
         <div className="border-t border-slate-200 px-5 pb-5 pt-4 space-y-4">
+          {/* Peer Benchmark */}
+          {finding.peer_benchmark && (() => {
+            const bm: PeerBenchmark = JSON.parse(finding.peer_benchmark);
+            const isOutlier = bm.deviation_multiplier >= 2.0;
+            return (
+              <div className={`rounded-lg p-4 border-l-2 ${isOutlier ? "bg-red-50 border-red-400" : "bg-slate-50 border-slate-300"}`}>
+                <div className="flex items-center gap-1.5 mb-3">
+                  <BarChart2 size={13} className={isOutlier ? "text-red-600" : "text-slate-500"} />
+                  <span className={`text-xs font-semibold uppercase tracking-wide ${isOutlier ? "text-red-700" : "text-slate-600"}`}>
+                    CMS Peer Benchmark — CPT {bm.cpt_code}
+                  </span>
+                  {isOutlier && (
+                    <span className="ml-auto text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
+                      Statistical Outlier
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-600 mb-3">{bm.description}</p>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div>
+                    <p className="text-lg font-bold text-slate-900">{bm.provider_count}</p>
+                    <p className="text-xs text-slate-500">Provider billed</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-slate-500">{bm.national_avg}</p>
+                    <p className="text-xs text-slate-500">National avg / 30 days</p>
+                  </div>
+                  <div>
+                    <p className={`text-lg font-bold ${isOutlier ? "text-red-600" : "text-slate-700"}`}>
+                      {bm.deviation_multiplier}x
+                    </p>
+                    <p className="text-xs text-slate-500">Deviation</p>
+                  </div>
+                </div>
+                {isOutlier && (
+                  <p className="mt-3 text-xs text-red-700 font-medium">
+                    Provider bills CPT {bm.cpt_code} at {bm.deviation_multiplier}x the national average — statistically consistent with fraudulent upcoding or duplicate billing patterns.
+                  </p>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Citation */}
           <div className="bg-blue-50 rounded-lg p-4 border-l-2 border-blue-300">
             <div className="flex items-center gap-1.5 mb-2">

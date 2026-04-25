@@ -36,3 +36,10 @@ async def list_documents(case_id: str, db: AsyncSession = Depends(get_db)):
     if not case:
         raise HTTPException(status_code=404, detail="Case not found")
     return await document_service.get_documents(db, case_id)
+
+
+@router.delete("/doc/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_document(doc_id: str, db: AsyncSession = Depends(get_db)):
+    deleted = await document_service.delete_document(db, doc_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Document not found")

@@ -46,6 +46,20 @@ async def save_upload(db: AsyncSession, case_id: str, file: UploadFile) -> Docum
     return doc
 
 
+async def delete_document(db: AsyncSession, doc_id: str) -> bool:
+    result = await db.execute(select(Document).where(Document.id == doc_id))
+    doc = result.scalar_one_or_none()
+    if not doc:
+        return False
+    try:
+        os.remove(doc.file_path)
+    except FileNotFoundError:
+        pass
+    await db.delete(doc)
+    await db.flush()
+    return True
+
+
 async def get_documents(db: AsyncSession, case_id: str) -> List[Document]:
     result = await db.execute(
         select(Document).where(Document.case_id == case_id).order_by(Document.uploaded_at)

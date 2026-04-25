@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, AlertTriangle, CheckCircle, Ban } from "lucide-react";
+import { ArrowLeft, Play, AlertTriangle, CheckCircle, Ban, FileText } from "lucide-react";
 import { getCase } from "../../services/casesApi";
 import { getDocuments } from "../../services/documentsApi";
 import { runPipeline, getFindings, getPipelineStatus } from "../../services/pipelineApi";
@@ -9,9 +9,10 @@ import { Spinner } from "../../shared/components/Spinner";
 import { DocumentUpload, DocumentList } from "../documents/DocumentUpload";
 import { FindingCard } from "../findings/FindingCard";
 import { ReviewGate } from "../review/ReviewGate";
+import { ComplaintViewer } from "../complaint/ComplaintViewer";
 import type { Case, Document, Finding, AttorneyBrief } from "../../shared/types";
 
-type Tab = "documents" | "findings" | "brief";
+type Tab = "documents" | "findings" | "brief" | "complaint";
 
 function EvidenceStatusPanel({
   tipProvided,
@@ -244,7 +245,7 @@ export default function CaseDetail() {
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 glass rounded-lg p-1 w-fit">
-          {(["documents", "findings", "brief"] as Tab[]).map((t) => (
+          {(["documents", "findings", "brief", ...(caseData.status === "approved" && brief ? ["complaint" as Tab] : [])] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -254,7 +255,7 @@ export default function CaseDetail() {
                   : "text-slate-600 hover:text-slate-950 hover:bg-slate-100"
               }`}
             >
-              {t}
+              {t === "complaint" ? "Complaint" : t}
               {t === "findings" && findings.length > 0 && (
                 <span className={`ml-1.5 text-xs rounded-md px-1.5 py-0.5 ${
                   tab === t ? "bg-white/20 text-white" : "bg-blue-50 text-blue-700"
@@ -304,6 +305,11 @@ export default function CaseDetail() {
           </div>
         )}
 
+        {/* Complaint tab */}
+        {tab === "complaint" && caseData.status === "approved" && brief && (
+          <ComplaintViewer caseData={caseData} brief={brief} />
+        )}
+
         {/* Brief tab */}
         {tab === "brief" && (
           <div>
@@ -317,9 +323,17 @@ export default function CaseDetail() {
               />
             ) : caseData.status === "approved" && brief ? (
               <div className="space-y-4">
-                <div className="rounded-lg p-5 border border-emerald-200 bg-emerald-50 flex items-center gap-3">
-                  <CheckCircle size={18} className="text-emerald-700" />
-                  <p className="text-sm text-emerald-800 font-medium">This case has been attorney-approved.</p>
+                <div className="rounded-lg p-5 border border-emerald-200 bg-emerald-50 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle size={18} className="text-emerald-700" />
+                    <p className="text-sm text-emerald-800 font-medium">This case has been attorney-approved.</p>
+                  </div>
+                  <button
+                    onClick={() => setTab("complaint")}
+                    className="btn-primary flex items-center gap-2 shrink-0"
+                  >
+                    <FileText size={14} /> View Formal Complaint
+                  </button>
                 </div>
                 <div className="glass rounded-lg p-6">
                   <h2 className="text-xl font-bold text-slate-950 mb-2">{brief.case_title}</h2>
