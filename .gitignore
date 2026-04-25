@@ -20,6 +20,9 @@ dist/
 # Uploads (never commit user docs)
 backend/uploads/
 
+# Logs
+*.log
+
 # IDE
 .vscode/
 .idea/
