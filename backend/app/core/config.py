@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     log_level: str = "INFO"
     cors_origins: str = "http://localhost:5173"
+    cors_origin_regex: str | None = None
 
     @field_validator("database_url")
     @classmethod
